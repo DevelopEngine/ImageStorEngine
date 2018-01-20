@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using IdEngine;
 using ImageStorEngine.Configuration;
 using ImageStorEngine.Diagnostics;
 // using Microsoft.Extensions.Configuration;
@@ -36,7 +37,7 @@ namespace ImageStorEngine.Services
             Index = fi;
         }
         private FileInfo Index { get; }
-        public ImageReference GetImage(ShortCode c)
+        public ImageReference GetImage(Id c)
         {
             var index = GetIndex();
             if (index.ContainsKey(c))
@@ -58,7 +59,7 @@ namespace ImageStorEngine.Services
                 : image;
         }
 
-        public ShortCode AddImage(string filePath, string name = null)
+        public Id AddImage(string filePath, string name = null)
         {
             var imgRef = new ImageReference(filePath, name);
             var index = GetIndex();
@@ -97,7 +98,7 @@ namespace ImageStorEngine.Services
             }
         }
 
-        public bool RemoveImage(ShortCode code)
+        public bool RemoveImage(Id code)
         {
             var index = GetIndex();
             if (index.ContainsKey(code)) {
@@ -110,14 +111,14 @@ namespace ImageStorEngine.Services
         {
             public bool Accepts(Type type)
             {
-                return type == typeof(ShortCode);
+                return type == typeof(Id);
             }
 
             public object ReadYaml(IParser parser, Type type)
             {
                 var value = ((Scalar)parser.Current).Value;
                 parser.MoveNext();
-                return ShortCode.TryParse(value, out var c)
+                return Id.TryParse(value, out var c)
                     ? c
                     : null;
             }
@@ -125,7 +126,7 @@ namespace ImageStorEngine.Services
             public void WriteYaml(IEmitter emitter, object value, Type type)
             {
                 if (value != null) {
-                    emitter.Emit(new Scalar((string)((ShortCode)value)));
+                    emitter.Emit(new Scalar((string)((Id)value)));
                 }
             }
         }
